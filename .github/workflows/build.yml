@@ -1,11 +1,11 @@
-name: Build and Send APK
+name: Build APK
 
 on:
   push:
     branches:
       - master
       - main
-  workflow_dispatch: # позволяет запускать вручную
+  workflow_dispatch:
 
 jobs:
   build:
@@ -33,16 +33,8 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleRelease
 
-      - name: Find APK
-        id: find_apk
-        run: |
-          APK_PATH=$(find app/build/outputs/apk/release -name "*.apk" -type f | head -n 1)
-          echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
-
-      - name: Send APK via Telegram
-        uses: appleboy/telegram-action@master
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v4
         with:
-          to: ${{ secrets.TELEGRAM_CHAT_ID }}
-          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          document: ${{ steps.find_apk.outputs.apk_path }}
-          message: "✅ Сборка мода завершена!"
+          name: Telegram-Mod-APK
+          path: app/build/outputs/apk/release/*.apk
